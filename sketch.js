@@ -46,6 +46,15 @@ function draw() {
   // If at least one pose is detected, run the GA using the right wrist position
   if (poses.length > 0) {
     let pose = poses[0].pose;
+
+    // Classify posture
+let posture = classifyPosture(pose);
+
+// Display on screen
+fill(0);
+textSize(24);
+text("Posture: " + posture, 10, 30);
+ 
     let rightWrist = pose.rightWrist;
     
     if (rightWrist) {
@@ -72,6 +81,77 @@ function draw() {
     }
   }
 }
+
+//posture estimation single pose
+
+ function classifyPosture(pose) {
+  const leftWrist = pose.leftWrist;
+  const rightWrist = pose.rightWrist;
+  const leftShoulder = pose.leftShoulder;
+  const rightShoulder = pose.rightShoulder;
+  const leftHip = pose.leftHip;
+  const rightHip = pose.rightHip;
+  const leftKnee = pose.leftKnee;
+  const rightKnee = pose.rightKnee;
+
+  if (
+    leftWrist.y < leftShoulder.y &&
+    rightWrist.y < rightShoulder.y
+  ) {
+    return "Hands Up";
+  }
+
+  if (
+    rightWrist.y < rightShoulder.y &&
+    leftWrist.y > leftShoulder.y
+  ) {
+    return "Right Hand Raised";
+  }
+
+  if (
+    leftWrist.y < leftShoulder.y &&
+    rightWrist.y > rightShoulder.y
+  ) {
+    return "Left Hand Raised";
+  }
+
+  if (
+    dist(leftWrist.x, leftWrist.y, rightWrist.x, rightWrist.y) < 50 &&
+    leftWrist.y > leftShoulder.y &&
+    rightWrist.y > rightShoulder.y
+  ) {
+    return "Arms Crossed";
+  }
+
+  if (
+    leftKnee.y > leftHip.y &&
+    rightKnee.y > rightHip.y &&
+    leftShoulder.y < leftHip.y &&
+    rightShoulder.y < rightHip.y &&
+    abs(leftHip.y - leftKnee.y) < 200 &&
+    abs(rightHip.y - rightKnee.y) < 200
+  ) {
+    return "Sitting";
+  }
+  
+
+  if (
+    abs(leftShoulder.x - leftHip.x) < 20 &&
+    abs(rightShoulder.x - rightHip.x) < 20 &&
+    leftShoulder.y < leftHip.y &&
+    rightShoulder.y < rightHip.y
+  ) {
+    return "Standing Straight";
+  }
+
+  
+
+  // Add more if needed (like T-pose, sitting, etc.)
+  return "Unknown";
+}
+  
+
+
 
 // ----- Genetic Algorithm Classes -----
 
@@ -185,4 +265,8 @@ function drawSkeleton() {
     }
   }
 }
+
+
+ 
+
 
